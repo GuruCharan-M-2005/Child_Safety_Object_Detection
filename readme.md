@@ -37,5 +37,5 @@ This project uses **Flask**, **TensorFlow** to implement a real-time object dete
     - Create a file named `labels.txt` in the same directory, containing the labels for your model (each label on a new line).
 
 - **Make sure to define the following things before deployment:**
-- `MODEL_PATH`: Path to the `model.savedmodel`.
-- `LABELS_PATH`: Path to the `labels.txt` file.
+    - `MODEL_PATH`: Path to the `model.savedmodel`.
+    - `LABELS_PATH`: Path to the `labels.txt` file.
