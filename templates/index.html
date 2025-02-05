@@ -1,4 +1,4 @@
-<!-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <title>Live Object Detection</title>
@@ -6,61 +6,5 @@
 <body>
     <h1>Child Safety Object Detection</h1>
     <img src="{{ url_for('video_feed') }}" width="70%">
-</body>
-</html> -->
-
-
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Object Detection - WebRTC</title>
-</head>
-<body>
-    <h1>Live Object Detection using WebRTC</h1>
-    <video id="video" autoplay></video>
-
-    <script>
-        let pc = new RTCPeerConnection();
-        const video = document.getElementById('video');
-
-        // When we receive the offer from the server
-        function startConnection() {
-            // Create an offer
-            pc.createOffer().then(offer => {
-                return pc.setLocalDescription(offer);
-            }).then(() => {
-                // Send offer to the server
-                fetch("/offer", {
-                    method: "POST",
-                    body: JSON.stringify({
-                        sdp: pc.localDescription.sdp,
-                        type: pc.localDescription.type
-                    }),
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Handle the answer from the server
-                    pc.setRemoteDescription(new RTCSessionDescription({
-                        sdp: data.sdp,
-                        type: data.type
-                    }));
-                });
-            });
-        }
-
-        // Handling the incoming video stream
-        pc.ontrack = function(event) {
-            video.srcObject = event.streams[0];
-        }
-
-        // Start the connection
-        startConnection();
-    </script>
 </body>
 </html>

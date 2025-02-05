@@ -2,6 +2,3 @@ flask
 opencv-python
 numpy
 tensorflow
-gunicorn
-waitress
-aiortc
