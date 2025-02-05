@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 import tensorflow as tf
 import os
+from waitress import serve
 
 os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true"
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
@@ -62,5 +63,6 @@ def video_feed():
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000)) 
-    app.run(host="0.0.0.0", port=port)
+    serve(app, host="0.0.0.0", port=port)
+    # app.run(host="0.0.0.0", port=port)
     # app.run(debug=True)
