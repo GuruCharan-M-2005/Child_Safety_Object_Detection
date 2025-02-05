@@ -4,3 +4,4 @@ numpy
 tensorflow
 gunicorn
 waitress
+aiortc
