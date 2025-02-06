@@ -29,6 +29,10 @@ This project uses **Flask**, **TensorFlow** to implement a real-time object dete
     numpy
     opencv-python
     ```
+3. **Install YoloV3 Weights from Internet**
+
+    - Open any Github Repo where Yolov3 Weights are available.
+    - Then download and move it to this current folder
 
 ### Step 2: Configure the Model and Labels
 
