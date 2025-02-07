@@ -57,11 +57,12 @@ def detect_objects(frame):
 
     if best_box:
         x, y = int(best_box[0] - best_box[2] / 2), int(best_box[1] - best_box[3] / 2)
-        color = (0, 0, 255) if status == "Not Safe" else (0, 255, 0)
+        color = (255, 0, 0) if status == "Not Safe" else (0, 255, 0)
         cv2.rectangle(frame, (x, y), (x + best_box[2], y + best_box[3]), color, 2)
         cv2.putText(frame, detected_object, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
 
-    _, buffer = cv2.imencode(".jpg", frame)
+    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    _, buffer = cv2.imencode(".jpg", frame_rgb)
     encoded_image = base64.b64encode(buffer).decode("utf-8")
 
     return jsonify({"image": encoded_image, "detections": detected_object, "status": status})
