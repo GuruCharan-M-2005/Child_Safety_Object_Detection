@@ -30,12 +30,13 @@ def detect_objects(frame):
     net.setInput(blob)
     outputs = net.forward(output_layers)
 
-    highest_confidence = 0
+    highest_confidence = 0.4
     detected_object = "None"
     status = "Safe"
     best_box = None
 
     for output in outputs:
+
         for detection in output:
             scores = detection[5:]
             class_id = np.argmax(scores)
@@ -44,6 +45,9 @@ def detect_objects(frame):
             if confidence > highest_confidence:
                 highest_confidence = confidence
                 label = classes[class_id]
+                if label not in SAFE_OBJECTS and label not in HARMFUL_OBJECTS:
+                    break
+
                 detected_object = label
                 status = "Not Safe" if label in HARMFUL_OBJECTS else "Safe"
 
