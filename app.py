@@ -21,22 +21,21 @@ def load_yolo_model():
     return net, classes, output_layers
 
 net, classes, output_layers = load_yolo_model()
-
 def detect_objects(frame):
     height, width, _ = frame.shape
     blob = cv2.dnn.blobFromImage(frame, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
     net.setInput(blob)
     outputs = net.forward(output_layers)
-    
+
     class_ids, confidences, boxes = [], [], []
-    
+
     for output in outputs:
         for detection in output:
             scores = detection[5:]
             class_id = np.argmax(scores)
             confidence = scores[class_id]
             label = str(classes[class_id])
-            if confidence > 0.5:
+            if confidence > 0.5:   
                 center_x, center_y, w, h = (
                     int(detection[0] * width),
                     int(detection[1] * height),
@@ -47,7 +46,7 @@ def detect_objects(frame):
                 boxes.append([x, y, w, h])
                 confidences.append(float(confidence))
                 class_ids.append(class_id)
-    
+
     indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
     if len(indexes) > 0:
         for i in indexes.flatten():
@@ -57,32 +56,32 @@ def detect_objects(frame):
             cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
             cv2.putText(frame, label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
+    return frame
 
-        return frame
-
-cap = cv2.VideoCapture(0)
 def generate_frames():
+    cap = cv2.VideoCapture(0)   
+    if not cap.isOpened():
+        print("Error: Could not open webcam.")
+        return
+
     while True:
         success, frame = cap.read()
-        if not success or frame is None or frame.size == 0:
-            print("Error: Empty frame captured.")
-            continue  # Skip empty frames
+        if not success:
+            print("Error: Failed to grab frame.")
+            break
 
-        frame = detect_objects(frame)
-
-        if frame is None or frame.size == 0:  
-            print("Error: Empty frame after detection.")
-            continue
+        frame = detect_objects(frame)  
 
         _, buffer = cv2.imencode('.jpg', frame)
-        if buffer is None or buffer.size == 0:
-            print("Error: Failed to encode frame.")
+        if buffer is None:
+            print("Error: Frame encoding failed.")
             continue
 
         frame_bytes = buffer.tobytes()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
 
+    cap.release()  
 
 @app.route('/')
 def index():
@@ -99,7 +98,7 @@ def upload():
     file = request.files['file']
     if file.filename == '':
         return "No selected file", 400
-    
+
     image = Image.open(file)
     frame = np.array(image)
     frame = detect_objects(frame)
