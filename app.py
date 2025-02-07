@@ -1,14 +1,16 @@
-from flask import Flask, render_template, Response, request
+import base64
 import cv2
 import numpy as np
-import os
+from flask import Flask, render_template, jsonify, request
 from PIL import Image
+import io
 
 CONFIG_PATH = "yolov3.cfg"
 WEIGHTS_PATH = "yolov3.weights"
 CLASSES_PATH = "coco.names"
 
 app = Flask(__name__)
+
 SAFE_OBJECTS = ["pen", "pencil", "toy", "book", "cup", "chair", "bed"]
 HARMFUL_OBJECTS = ["knife", "scissors"]
 
@@ -21,89 +23,63 @@ def load_yolo_model():
     return net, classes, output_layers
 
 net, classes, output_layers = load_yolo_model()
+
 def detect_objects(frame):
     height, width, _ = frame.shape
     blob = cv2.dnn.blobFromImage(frame, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
     net.setInput(blob)
     outputs = net.forward(output_layers)
 
-    class_ids, confidences, boxes = [], [], []
+    highest_confidence = 0
+    detected_object = "None"
+    status = "Safe"
+    best_box = None
 
     for output in outputs:
         for detection in output:
             scores = detection[5:]
             class_id = np.argmax(scores)
             confidence = scores[class_id]
-            label = str(classes[class_id])
-            if confidence > 0.5:   
+
+            if confidence > highest_confidence:
+                highest_confidence = confidence
+                label = classes[class_id]
+                detected_object = label
+                status = "Not Safe" if label in HARMFUL_OBJECTS else "Safe"
+
                 center_x, center_y, w, h = (
                     int(detection[0] * width),
                     int(detection[1] * height),
                     int(detection[2] * width),
                     int(detection[3] * height),
                 )
-                x, y = int(center_x - w / 2), int(center_y - h / 2)
-                boxes.append([x, y, w, h])
-                confidences.append(float(confidence))
-                class_ids.append(class_id)
+                best_box = (center_x, center_y, w, h)
 
-    indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
-    if len(indexes) > 0:
-        for i in indexes.flatten():
-            x, y, w, h = boxes[i]
-            label = str(classes[class_ids[i]])
-            color = (0, 255, 0) if label in SAFE_OBJECTS else (0, 0, 255) if label in HARMFUL_OBJECTS else (255, 255, 255)
-            cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
-            cv2.putText(frame, label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+    if best_box:
+        x, y = int(best_box[0] - best_box[2] / 2), int(best_box[1] - best_box[3] / 2)
+        color = (0, 0, 255) if status == "Not Safe" else (0, 255, 0)
+        cv2.rectangle(frame, (x, y), (x + best_box[2], y + best_box[3]), color, 2)
+        cv2.putText(frame, detected_object, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
 
-    return frame
+    _, buffer = cv2.imencode(".jpg", frame)
+    encoded_image = base64.b64encode(buffer).decode("utf-8")
 
-def generate_frames():
-    cap = cv2.VideoCapture(0)   
-    if not cap.isOpened():
-        print("Error: Could not open webcam.")
-        return
+    return jsonify({"image": encoded_image, "detections": detected_object, "status": status})
 
-    while True:
-        success, frame = cap.read()
-        if not success:
-            print("Error: Failed to grab frame.")
-            break
-
-        frame = detect_objects(frame)  
-
-        _, buffer = cv2.imencode('.jpg', frame)
-        if buffer is None:
-            print("Error: Frame encoding failed.")
-            continue
-
-        frame_bytes = buffer.tobytes()
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
-
-    cap.release()  
-
-@app.route('/')
+@app.route("/")
 def index():
-    return render_template('index.html')
+    return render_template("index.html")
 
-@app.route('/video_feed')
-def video_feed():
-    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+@app.route("/upload_image", methods=["POST"])
+def upload_image():
+    if "file" not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
 
-@app.route('/upload', methods=['POST'])
-def upload():
-    if 'file' not in request.files:
-        return "No file uploaded", 400
-    file = request.files['file']
-    if file.filename == '':
-        return "No selected file", 400
-
-    image = Image.open(file)
+    file = request.files["file"]
+    image = Image.open(file.stream)
     frame = np.array(image)
-    frame = detect_objects(frame)
-    _, buffer = cv2.imencode('.jpg', frame)
-    return Response(buffer.tobytes(), mimetype='image/jpeg')
 
-if __name__ == '__main__':
+    return detect_objects(frame)
+
+if __name__ == "__main__":
     app.run(debug=True)
