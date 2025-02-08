@@ -34,3 +34,10 @@ This project uses **Flask** to implement a real-time object detection system for
 
     - Open any Github Repo where Yolov3 Weights are available.
     - Then download and move it to this current folder
+
+4. **Manual Deployment**
+     
+     RUN THIS COMMAND 
+     ```
+     gunicorn -w 4 -b 0.0.0.0:8000 app:app 
+     ```
