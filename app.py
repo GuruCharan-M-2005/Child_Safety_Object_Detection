@@ -30,7 +30,7 @@ def detect_objects(frame):
     net.setInput(blob)
     outputs = net.forward(output_layers)
 
-    highest_confidence = 0.4
+    highest_confidence = 0.2
     detected_object = "None"
     status = "Safe"
     best_box = None
