@@ -32,9 +32,10 @@ This project uses **Flask** to implement a real-time object detection system for
     ```
 3. **Install YoloV3 Weights from Internet**
 
-    - Open any Github Repo where Yolov3 Weights are available.
-    - Then download and move it to this current folder
-
+    RUN THIS COMMAND 
+     ```
+     wget -O yolov3.weights https://pjreddie.com/media/files/yolov3.weights
+     ```
 4. **Manual Deployment**
      
      RUN THIS COMMAND 
