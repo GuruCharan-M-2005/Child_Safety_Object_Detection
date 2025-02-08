@@ -2,14 +2,14 @@
 
 ## Overview
 
-This project uses **Flask**, **TensorFlow** to implement a real-time object detection system for child safety. It captures video from the client's camera, processes the frames using a trained machine learning model, and then detects objects in the video stream (such as people, toys, or other potential safety risks). The processed video is streamed back to the client with the detected objects highlighted.
+This project uses **Flask** to implement a real-time object detection system for child safety. It captures video from the client's camera, processes the frames using a trained machine learning model, and then detects objects in the video stream (such as people, toys, or other potential safety risks). The processed video is streamed back to the client with the detected objects highlighted.
 
 ## Technologies Used
 
 - **Flask**: Web framework to serve the application.
-- **TensorFlow**: Object detection model.
+- **HTML-CSS-JS**: Serves UI and Frontend
 
-### Step 1: Set Up the Server
+### Set Up the Server 
 
 1. **Clone the repository** to your local machine or directly on the server:
     ```bash
@@ -24,22 +24,13 @@ This project uses **Flask**, **TensorFlow** to implement a real-time object dete
 
     The `requirements.txt` file should contain the following dependencies:
     ```
-    Flask
-    tensorflow
-    numpy
+    flask
     opencv-python
+    numpy
+    Pillow
+    gunicorn
     ```
 3. **Install YoloV3 Weights from Internet**
 
     - Open any Github Repo where Yolov3 Weights are available.
     - Then download and move it to this current folder
-
-### Step 2: Configure the Model and Labels
-
-- **Download the TensorFlow model** and **labels** used for object detection:
-    - Place the model in a folder named `model.savedmodel`.
-    - Create a file named `labels.txt` in the same directory, containing the labels for your model (each label on a new line).
-
-- **Make sure to define the following things before deployment:**
-    - `MODEL_PATH`: Path to the `model.savedmodel`.
-    - `LABELS_PATH`: Path to the `labels.txt` file.
