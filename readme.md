@@ -11,7 +11,7 @@ This project uses **Flask** to implement a real-time object detection system for
 
 ### Set Up the Server 
 
-1. **Clone the repository** to your local machine or directly on the server:
+1. **Clone the repository** 
     ```bash
     git clone https://github.com/your-repository/child-safety-object-detection.git
     cd child-safety-object-detection
@@ -22,7 +22,7 @@ This project uses **Flask** to implement a real-time object detection system for
     pip install -r requirements.txt
     ```
 
-    The `requirements.txt` file should contain the following dependencies:
+    **Run** `requirements.txt` 
     ```
     flask
     opencv-python
@@ -32,13 +32,13 @@ This project uses **Flask** to implement a real-time object detection system for
     ```
 3. **Install YoloV3 Weights from Internet**
 
-    RUN THIS COMMAND 
+    **Run this command** 
      ```
      wget -O yolov3.weights https://pjreddie.com/media/files/yolov3.weights
      ```
 4. **Manual Deployment**
      
-     RUN THIS COMMAND 
+     **Run this command**
      ```
      gunicorn -w 4 -b 0.0.0.0:8000 app:app 
      ```
