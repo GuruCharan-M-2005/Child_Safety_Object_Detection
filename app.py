@@ -43,7 +43,6 @@ def detect_objects(frame):
             confidence = scores[class_id]
 
             if confidence > highest_confidence:
-                highest_confidence = confidence
                 label = classes[class_id]
                 if label not in SAFE_OBJECTS and label not in HARMFUL_OBJECTS:
                     break
