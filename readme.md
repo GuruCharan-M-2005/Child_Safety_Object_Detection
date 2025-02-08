@@ -22,7 +22,7 @@ This project uses **Flask** to implement a real-time object detection system for
     pip install -r requirements.txt
     ```
 
-    **Run** `requirements.txt` 
+    `requirements.txt` 
     ```
     flask
     opencv-python
